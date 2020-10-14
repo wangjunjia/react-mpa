@@ -20,7 +20,6 @@ const fs = require('fs-extra')
 const webpack = require('webpack')
 const configFactory = require('../config/webpack.config')
 const paths = require('../config/paths')
-const pages = require('../config/page')
 const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles')
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
 const printHostingInstructions = require('react-dev-utils/printHostingInstructions')
@@ -37,12 +36,8 @@ const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024
 
 const isInteractive = process.stdout.isTTY
 
-const entries = Object.keys(pages).reduce((pre, fileName) => {
-  pre.push(path.resolve(paths.appSrc, fileName, 'index.js'))
-  return pre
-}, [])
 // Warn and crash if required files are missing
-if (!checkRequiredFiles([paths.appHtml, ...entries])) {
+if (!checkRequiredFiles([paths.appHtml].concat(paths.pageEntries.map(it => it.entryPath)))) {
   process.exit(1)
 }
 

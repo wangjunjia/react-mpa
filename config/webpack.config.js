@@ -21,7 +21,6 @@ const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
 const paths = require('./paths')
 const modules = require('./modules')
 const getClientEnvironment = require('./env')
-const pages = require('./page')
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin')
 
 const postcssNormalize = require('postcss-normalize')
@@ -118,21 +117,21 @@ module.exports = function (webpackEnv) {
 
   // 获取指定路径下的入口文件
   function getEntries() {
-    return Object.keys(pages).reduce((pre, fileName) => {
-      pre[fileName] = [isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'), path.resolve(paths.appSrc, fileName, 'index.js')].filter(Boolean)
-      return pre
+    return paths.pageEntries.reduce((ret, page) => {
+      ret[page.fileName] = [isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient'), page.entryPath].filter(Boolean)
+      return ret
     }, {})
   }
 
-  const htmlPlugins = Object.keys(pages).map(fileName => {
+  const htmlPlugins = paths.pageEntries.map(page => {
     return new HtmlWebpackPlugin(
       Object.assign(
         {},
         {
           inject: true,
           template: paths.appHtml,
-          filename: `${fileName}.html`,
-          chunks: [fileName],
+          filename: `${page.fileName}.html`,
+          chunks: [page.fileName],
         },
         isEnvProduction
           ? {
@@ -227,6 +226,7 @@ module.exports = function (webpackEnv) {
       modules: ['node_modules', paths.appNodeModules].concat(modules.additionalModulePaths || []),
       extensions: paths.moduleFileExtensions.map(ext => `.${ext}`).filter(ext => !ext.includes('ts')),
       alias: {
+        '@': paths.appSrc,
         'react-native': 'react-native-web',
         ...(isEnvProductionProfile && {
           'react-dom$': 'react-dom/profiling',

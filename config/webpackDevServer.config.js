@@ -1,7 +1,6 @@
 'use strict'
 
 const fs = require('fs')
-const path = require('path')
 const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware')
 const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware')
 const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware')
@@ -9,21 +8,18 @@ const ignoredFiles = require('react-dev-utils/ignoredFiles')
 const redirectServedPath = require('react-dev-utils/redirectServedPathMiddleware')
 const paths = require('./paths')
 const getHttpsConfig = require('./getHttpsConfig')
-const pages = require('./page')
 
 const host = process.env.HOST || '0.0.0.0'
 const sockHost = process.env.WDS_SOCKET_HOST
 const sockPath = process.env.WDS_SOCKET_PATH // default: '/sockjs-node'
 const sockPort = process.env.WDS_SOCKET_PORT
 
-const rewrites = Object.keys(pages).map(fileName => {
+const rewrites = paths.pageEntries.map(page => {
   return {
-    from: new RegExp(`^\/${fileName}`),
-    to: `/${fileName}.html`,
-  };
-});
-
-
+    from: new RegExp(`^\/${page.fileName}`),
+    to: `/${page.fileName}.html`,
+  }
+})
 
 module.exports = function (proxy, allowedHost) {
   return {

@@ -4,6 +4,8 @@ const path = require('path')
 const fs = require('fs')
 const getPublicUrlOrPath = require('react-dev-utils/getPublicUrlOrPath')
 
+const pageConf = require('./page')
+
 // Make sure any symlinks in the project folder are resolved:
 // https://github.com/facebook/create-react-app/issues/637
 const appDirectory = fs.realpathSync(process.cwd())
@@ -30,6 +32,17 @@ const resolveModule = (resolveFn, filePath) => {
   return resolveFn(`${filePath}.js`)
 }
 
+const getPageEntries = () => {
+  return Object.keys(pageConf).reduce((pre, cur) => {
+    pre.push({
+      fileName: cur,
+      entryPath: resolveApp(`src/pages/${cur}/index.js`),
+      ...pageConf[cur],
+    })
+    return pre
+  }, [])
+}
+
 // config after eject: we're in ./config/
 module.exports = {
   dotenv: resolveApp('.env'),
@@ -37,7 +50,6 @@ module.exports = {
   appBuild: resolveApp('build'),
   appPublic: resolveApp('public'),
   appHtml: resolveApp('public/index.html'),
-  appIndexJs: resolveModule(resolveApp, 'src/index'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
   appTsConfig: resolveApp('tsconfig.json'),
@@ -46,6 +58,7 @@ module.exports = {
   proxySetup: resolveApp('src/setupProxy.js'),
   appNodeModules: resolveApp('node_modules'),
   publicUrlOrPath,
+  pageEntries: getPageEntries(),
 }
 
 module.exports.moduleFileExtensions = moduleFileExtensions
